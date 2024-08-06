@@ -1,16 +1,31 @@
-# This is a sample Python script.
+from aiogram import Bot, Dispatcher, types
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import asyncio
+
+from aiogram.client.default import DefaultBotProperties
+
+from bot.settings import settings
+from bot.middlewares import register_all_middlewares
+from bot.routers import register_all_routers
+from bot.settings import BOT_SCHEDULER
+from bot.db.api import update_count_posts
+from bot.logging import setup
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+async def main():
+
+    bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML', link_preview_is_disabled=True))
+
+    dp = Dispatcher()
+
+    register_all_routers(dp)
+    register_all_middlewares(dp)
+    BOT_SCHEDULER.add_job(update_count_posts, "cron", hour=0)
+    BOT_SCHEDULER.start()
+    await setup()
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    asyncio.run(main())
