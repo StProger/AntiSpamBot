@@ -22,6 +22,6 @@ class ThrottlinkMiddleware(BaseMiddleware):
         user: User = await get_user(user_id)
         if user:
             data["user"] = user
-            print(user)
+            # print(user)
             return await handler(event, data)
         return

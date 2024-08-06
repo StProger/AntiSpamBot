@@ -32,5 +32,5 @@ class UserMiddleware(BaseMiddleware):
             await create_user(user)
 
         data['user'] = user
-        print(2)
+        # print(2)
         return await handler(event, data)

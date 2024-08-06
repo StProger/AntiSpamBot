@@ -9,7 +9,7 @@ from bot.db.api import update_user
 router = Router()
 
 
-@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id == 57)
+@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({57, 56}))
 async def antispam_handler(message: types.Message, user: User):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
