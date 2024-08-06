@@ -1,4 +1,6 @@
 from sqlalchemy import select, update
+from aiogram import types
+from asyncio import sleep
 
 from bot.db.engine import async_session_maker
 from bot.db.models.users import User
@@ -37,3 +39,9 @@ async def update_count_posts():
         query = update(User).values(count_posts=0)
         await session.execute(query)
         await session.commit()
+
+
+async def delete_mes(message: types.Message):
+
+    await sleep(60)
+    await message.delete()

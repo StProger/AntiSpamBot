@@ -1,10 +1,10 @@
 from aiogram import Router, F, types
 from aiogram.enums import ChatMemberStatus
 from aiogram.types import ChatMemberOwner, ChatMemberAdministrator
+import asyncio
 
 from bot.db.models.users import User
-from bot.db.api import update_user
-
+from bot.db.api import update_user, delete_mes
 
 router = Router()
 
@@ -17,17 +17,19 @@ async def antispam_handler(message: types.Message, user: User):
         return
     if user.count_posts == 2:
         await message.delete()
-        await message.answer(
+        mes = await message.answer(
             text=f"@{message.from_user.username}, лимит постов превышен: <code>2</code>"
         )
+        asyncio.create_task(delete_mes(mes))
         return
 
     if "@Mr_Perkins" not in message.text:
 
         await message.delete()
-        await message.answer(
+        mes = await message.answer(
             text=f"@{message.from_user.username}, добавьте гаранта @Mr_Perkins в пост."
         )
+        asyncio.create_task(delete_mes(mes))
         return
 
     new_count_posts = user.count_posts + 1
