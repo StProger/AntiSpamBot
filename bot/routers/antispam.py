@@ -8,8 +8,7 @@ from bot.db.api import update_user, delete_mes
 
 router = Router()
 
-
-@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({57, 56}))
+@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({51,}))
 async def antispam_handler(message: types.Message, user: User):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
@@ -34,3 +33,15 @@ async def antispam_handler(message: types.Message, user: User):
 
     new_count_posts = user.count_posts + 1
     await update_user(new_count_posts, message.from_user.id)
+
+
+@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({None,}),
+                F.text.lower().in_({"продам", "куплю", "услуги", "услуга"}))
+async def antispam_handler_general(message: types.Message, user: User):
+
+    await message.delete()
+    mes = await message.answer(
+        text=f"@{message.from_user.username}, предлагайте услуги в ветке <b>Work/Услуги</b>"
+    )
+    asyncio.create_task(delete_mes(mes))
+    return
