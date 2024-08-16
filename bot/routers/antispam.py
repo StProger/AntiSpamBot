@@ -14,14 +14,11 @@ async def antispam_handler(message: types.Message, user: User):
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR]:
         return
-    low_text = message.text.lower()
+    # low_text = message.text.lower()
     if len(message.text) > 100:
-        await message.delete()
-        await message.answer(
-            text=f"@{message.from_user.username}, максимальное кол-во символов: 100"
-        )
-        return
-    if ("куплю" in low_text) or ("продам" in low_text) or ("услуги" in low_text) or ("услуга" in low_text):
+
+    # if ("куплю" in low_text) or ("продам" in low_text) or ("услуги" in low_text) or ("услуга" in low_text):
+
         if user.count_posts == 2:
             await message.delete()
             mes = await message.answer(
@@ -34,7 +31,7 @@ async def antispam_handler(message: types.Message, user: User):
 
             await message.delete()
             mes = await message.answer(
-                text=f"@{message.from_user.username}, добавьте гаранта @Mr_Perkins в пост."
+                text=f"@{message.from_user.username}, не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
             asyncio.create_task(delete_mes(mes))
             return
