@@ -20,6 +20,7 @@ async def antispam_handler(message: types.Message, user: User):
         await message.answer(
             text=f"@{message.from_user.username}, максимальное кол-во символов: 100"
         )
+        return
     if ("куплю" in low_text) or ("продам" in low_text) or ("услуги" in low_text) or ("услуга" in low_text):
         if user.count_posts == 2:
             await message.delete()
