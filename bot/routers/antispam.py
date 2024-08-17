@@ -16,7 +16,7 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     print(f"Ban | Username: {message.from_user.username}, {user_permission}")
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
-                           ChatMemberStatus.ADMINISTRATOR]:
+                           ChatMemberStatus.ADMINISTRATOR] or message.from_user.username == "GroupAnonymousBot":
         user_id = int(message.text.split()[-1])
         try:
             await bot.ban_chat_member(
@@ -66,7 +66,8 @@ async def antispam_handler(message: types.Message, user: User):
           or ("приму" in low_text) or ("нужны" in low_text)
           or ("подработка" in low_text) or ("работа" in low_text)
           or ("агенство" in low_text) or ("связь" in low_text)
-          or ("подробнее" in low_text)):
+          or ("подробнее" in low_text) or ("куплб" in low_text)
+          or ("ищу" in low_text)):
 
         if user.count_posts == 2:
             await message.delete()
@@ -112,7 +113,8 @@ async def antispam_handler(message: types.Message, user: User):
           or ("приму" in low_text) or ("нужны" in low_text)
           or ("подработка" in low_text) or ("работа" in low_text)
           or ("связь" in low_text) or ("агенство" in low_text)
-          or ("подробнее" in low_text) or ("куплб" in low_text)):
+          or ("подробнее" in low_text) or ("куплб" in low_text)
+          or ("ищу" in low_text)):
 
         await message.delete()
         mes = await message.answer(
