@@ -92,7 +92,7 @@ async def antispam_handler(message: types.Message, user: User):
 async def antispam_handler(message: types.Message, user: User):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
-    print(f"Username: {message.from_user.username}, {user_permission}")
+    print(f"Ban | Username: {message.from_user.username}, {user_permission}")
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
                            ChatMemberStatus.ADMINISTRATOR]:
         return
