@@ -40,7 +40,7 @@ async def antispam_handler(message: types.Message, user: User):
                            ChatMemberStatus.ADMINISTRATOR]:
         return
     low_text = message.text.lower()
-    if len(message.text) > 100:
+    if len(message.text) >= 100:
 
         if user.count_posts == 2:
             await message.delete()
@@ -54,7 +54,7 @@ async def antispam_handler(message: types.Message, user: User):
 
             await message.delete()
             mes = await message.answer(
-                text=f"@{message.from_user.username}, не забывайте добавлять в пост гаранта @Mr_Perkins."
+                text=f"@{message.from_user.username} ({message.from_user.id}), не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
             asyncio.create_task(delete_mes(mes))
             return
@@ -64,12 +64,14 @@ async def antispam_handler(message: types.Message, user: User):
           or ("услуги" in low_text) or ("услуга" in low_text)
           or ("возьму" in low_text) or ("нужен" in low_text)
           or ("приму" in low_text) or ("нужны" in low_text)
-          or ("подработка" in low_text) or ("работа" in low_text)):
+          or ("подработка" in low_text) or ("работа" in low_text)
+          or ("агенство" in low_text) or ("связь" in low_text)
+          or ("подробнее" in low_text)):
 
         if user.count_posts == 2:
             await message.delete()
             mes = await message.answer(
-                text=f"@{message.from_user.username}, лимит постов превышен: <code>2</code>"
+                text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
             asyncio.create_task(delete_mes(mes))
             return
@@ -109,7 +111,8 @@ async def antispam_handler(message: types.Message, user: User):
           or ("возьму" in low_text) or ("нужен" in low_text)
           or ("приму" in low_text) or ("нужны" in low_text)
           or ("подработка" in low_text) or ("работа" in low_text)
-          or ("связь" in low_text)):
+          or ("связь" in low_text) or ("агенство" in low_text)
+          or ("подробнее" in low_text)):
 
         await message.delete()
         mes = await message.answer(
