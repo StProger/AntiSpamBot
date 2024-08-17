@@ -14,7 +14,7 @@ router = Router()
 async def ban_member(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
-    print(f"Username: {message.from_user.username}, {user_permission}")
+    print(f"Ban | Username: {message.from_user.username}, {user_permission}")
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
                            ChatMemberStatus.ADMINISTRATOR]:
         user_id = int(message.text.split()[-1])
@@ -92,7 +92,7 @@ async def antispam_handler(message: types.Message, user: User):
 async def antispam_handler(message: types.Message, user: User):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
-    print(f"Ban | Username: {message.from_user.username}, {user_permission}")
+    print(f"Username: {message.from_user.username}, {user_permission}")
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
                            ChatMemberStatus.ADMINISTRATOR]:
         return
@@ -112,7 +112,7 @@ async def antispam_handler(message: types.Message, user: User):
           or ("приму" in low_text) or ("нужны" in low_text)
           or ("подработка" in low_text) or ("работа" in low_text)
           or ("связь" in low_text) or ("агенство" in low_text)
-          or ("подробнее" in low_text)):
+          or ("подробнее" in low_text) or ("куплб" in low_text)):
 
         await message.delete()
         mes = await message.answer(
