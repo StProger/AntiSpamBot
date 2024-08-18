@@ -37,7 +37,7 @@ async def antispam_handler(message: types.Message, user: User):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
-                           ChatMemberStatus.ADMINISTRATOR]:
+                           ChatMemberStatus.ADMINISTRATOR] or message.from_user.username == "GroupAnonymousBot":
         return
     print(f"Сообщение от бота: {message.from_user.is_bot}")
     if message.from_user.is_bot and message.from_user.username != "GroupAnonymousBot":
@@ -102,7 +102,7 @@ async def antispam_handler(message: types.Message, user: User):
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     print(f"Username: {message.from_user.username}, {user_permission}")
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
-                           ChatMemberStatus.ADMINISTRATOR]:
+                           ChatMemberStatus.ADMINISTRATOR] or message.from_user.username == "GroupAnonymousBot":
         return
     print(f"Сообщение от бота: {message.from_user.is_bot}")
     if message.from_user.is_bot and message.from_user.username != "GroupAnonymousBot":
