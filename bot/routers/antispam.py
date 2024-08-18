@@ -39,6 +39,13 @@ async def antispam_handler(message: types.Message, user: User):
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
                            ChatMemberStatus.ADMINISTRATOR]:
         return
+    print(f"Сообщение от бота: {message.from_user.is_bot}")
+    if message.from_user.is_bot:
+        await message.delete()
+        await message.bot.ban_chat_member(
+            chat_id=message.chat.id,
+            user_id=message.from_user.id
+        )
     low_text = message.text.lower()
     if len(message.text) >= 100:
 
@@ -97,6 +104,13 @@ async def antispam_handler(message: types.Message, user: User):
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
                            ChatMemberStatus.ADMINISTRATOR]:
         return
+    print(f"Сообщение от бота: {message.from_user.is_bot}")
+    if message.from_user.is_bot:
+        await message.delete()
+        await message.bot.ban_chat_member(
+            chat_id=message.chat.id,
+            user_id=message.from_user.id
+        )
     low_text = message.text.lower()
     if len(message.text) > 100:
 
