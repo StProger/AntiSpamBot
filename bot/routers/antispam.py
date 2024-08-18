@@ -40,7 +40,7 @@ async def antispam_handler(message: types.Message, user: User):
                            ChatMemberStatus.ADMINISTRATOR]:
         return
     print(f"Сообщение от бота: {message.from_user.is_bot}")
-    if message.from_user.is_bot:
+    if message.from_user.is_bot and message.from_user.username != "GroupAnonymousBot":
         await message.delete()
         await message.bot.ban_chat_member(
             chat_id=message.chat.id,
@@ -105,7 +105,7 @@ async def antispam_handler(message: types.Message, user: User):
                            ChatMemberStatus.ADMINISTRATOR]:
         return
     print(f"Сообщение от бота: {message.from_user.is_bot}")
-    if message.from_user.is_bot:
+    if message.from_user.is_bot and message.from_user.username != "GroupAnonymousBot":
         await message.delete()
         await message.bot.ban_chat_member(
             chat_id=message.chat.id,
