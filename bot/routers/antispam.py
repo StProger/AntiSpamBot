@@ -24,7 +24,8 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
                 user_id=user_id
             )
             print("Забанил")
-            await message.answer(f"Пользователь ({user_id}) забанен.")
+            mes = await message.answer(f"Пользователь ({user_id}) забанен.")
+            asyncio.create_task(delete_mes(mes))
         except Exception as e:
 
             print(f"Не смог забанить. Ошибка {e}")
