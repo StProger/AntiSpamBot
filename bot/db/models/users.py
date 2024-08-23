@@ -13,3 +13,4 @@ class User(Base):
     username: Mapped[str]
     name: Mapped[str]
     count_posts: Mapped[int] = mapped_column(default=0)
+    warning_count: Mapped[int] = mapped_column(default=0)

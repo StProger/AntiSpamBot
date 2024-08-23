@@ -31,17 +31,24 @@ async def update_user(count_posts: int, tg_id):
         await session.execute(query)
         await session.commit()
 
+async def update_count_warnings(tg_id, count_warnings):
+    async with async_session_maker() as session:
+        query = update(User).where(User.tg_id == tg_id).values(warning_count=count_warnings)
+        await session.execute(query)
+        await session.commit()
+
+
 
 async def update_count_posts():
 
     async with async_session_maker() as session:
 
-        query = update(User).values(count_posts=0)
+        query = update(User).values(count_posts=0, warning_count=0)
         await session.execute(query)
         await session.commit()
 
 
 async def delete_mes(message: types.Message):
 
-    await sleep(60)
+    await sleep(10)
     await message.delete()

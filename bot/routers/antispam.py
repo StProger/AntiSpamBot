@@ -5,7 +5,7 @@ from aiogram.filters.command import Command
 import asyncio
 
 from bot.db.models.users import User
-from bot.db.api import update_user, delete_mes
+from bot.db.api import update_user, delete_mes, update_count_warnings
 
 router = Router()
 
@@ -33,7 +33,7 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
 
 
 @router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({None,}))
-async def antispam_handler(message: types.Message, user: User):
+async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
@@ -46,23 +46,53 @@ async def antispam_handler(message: types.Message, user: User):
             chat_id=message.chat.id,
             user_id=message.from_user.id
         )
+        return
     low_text = message.text.lower()
     if len(message.text) >= 100:
 
         if user.count_posts == 2:
+            if user.warning_count == 2:
+                try:
+                    await bot.ban_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=message.from_user.id
+                    )
+                    await message.delete()
+                    return
+                    # print("Забанил")
+                    # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+                except Exception as e:
+
+                    print(f"Не смог забанить. Ошибка {e}")
+
             await message.delete()
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
+            await update_count_warnings(message.from_user.id, user.warning_count + 1)
             asyncio.create_task(delete_mes(mes))
             return
 
         if "@Mr_Perkins" not in message.text:
 
             await message.delete()
+            if user.warning_count == 2:
+                try:
+                    await bot.ban_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=message.from_user.id
+                    )
+                    await message.delete()
+                    return
+                    # print("Забанил")
+                    # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+                except Exception as e:
+
+                    print(f"Не смог забанить. Ошибка {e}")
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
+            await update_count_warnings(message.from_user.id, user.warning_count + 1)
             asyncio.create_task(delete_mes(mes))
             return
         new_count_posts = user.count_posts + 1
@@ -78,18 +108,46 @@ async def antispam_handler(message: types.Message, user: User):
 
         if user.count_posts == 2:
             await message.delete()
+            if user.warning_count == 2:
+                try:
+                    await bot.ban_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=message.from_user.id
+                    )
+                    await message.delete()
+                    return
+                    # print("Забанил")
+                    # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+                except Exception as e:
+
+                    print(f"Не смог забанить. Ошибка {e}")
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
+            await update_count_warnings(message.from_user.id, user.warning_count + 1)
             asyncio.create_task(delete_mes(mes))
             return
 
         if "@Mr_Perkins" not in message.text:
 
             await message.delete()
+            if user.warning_count == 2:
+                try:
+                    await bot.ban_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=message.from_user.id
+                    )
+                    await message.delete()
+                    return
+                    # print("Забанил")
+                    # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+                except Exception as e:
+
+                    print(f"Не смог забанить. Ошибка {e}")
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
+            await update_count_warnings(message.from_user.id, user.warning_count + 1)
             asyncio.create_task(delete_mes(mes))
             return
         new_count_posts = user.count_posts + 1
@@ -97,7 +155,7 @@ async def antispam_handler(message: types.Message, user: User):
 
 
 @router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({47,}))
-async def antispam_handler(message: types.Message, user: User):
+async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     print(f"Username: {message.from_user.username}, {user_permission}")
@@ -111,13 +169,28 @@ async def antispam_handler(message: types.Message, user: User):
             chat_id=message.chat.id,
             user_id=message.from_user.id
         )
+        return
     low_text = message.text.lower()
     if len(message.text) > 100:
 
         await message.delete()
+        if user.warning_count == 2:
+            try:
+                await bot.ban_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id
+                )
+                await message.delete()
+                return
+                # print("Забанил")
+                # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+            except Exception as e:
+
+                print(f"Не смог забанить. Ошибка {e}")
         mes = await message.answer(
             text=f"@{message.from_user.username} ({message.from_user.id}), предлагайте услуги в ветке <b>WORK/УСЛУГИ</b>. И не забывайте писать гаранта @Mr_Perkins"
         )
+        await update_count_warnings(message.from_user.id, user.warning_count + 1)
         asyncio.create_task(delete_mes(mes))
         return
 
@@ -129,11 +202,24 @@ async def antispam_handler(message: types.Message, user: User):
           or ("связь" in low_text) or ("агенство" in low_text)
           or ("подробнее" in low_text) or ("куплб" in low_text)
           or ("ищу" in low_text)):
+        if user.warning_count == 2:
+            try:
+                await bot.ban_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id
+                )
+                await message.delete()
+                return
+                # print("Забанил")
+                # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+            except Exception as e:
 
+                print(f"Не смог забанить. Ошибка {e}")
         await message.delete()
         mes = await message.answer(
             text=f"@{message.from_user.username} ({message.from_user.id}), предлагайте услуги в ветке <b>WORK/УСЛУГИ</b>. И не забывайте писать гаранта @Mr_Perkins"
         )
+        await update_count_warnings(message.from_user.id, user.warning_count + 1)
         asyncio.create_task(delete_mes(mes))
         return
 
