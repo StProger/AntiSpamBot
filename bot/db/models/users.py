@@ -4,6 +4,7 @@ from sqlalchemy import BigInteger, Integer
 from bot.db.engine import Base
 
 
+
 class User(Base):
 
     __tablename__ = 'users'
@@ -14,3 +15,4 @@ class User(Base):
     name: Mapped[str]
     count_posts: Mapped[int] = mapped_column(default=0)
     warning_count: Mapped[int] = mapped_column(default=0)
+    last_message_id: Mapped[int] = mapped_column(BigInteger, default=None)

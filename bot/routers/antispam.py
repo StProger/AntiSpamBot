@@ -5,7 +5,7 @@ from aiogram.filters.command import Command
 import asyncio
 
 from bot.db.models.users import User
-from bot.db.api import update_user, delete_mes, update_count_warnings
+from bot.db.api import update_user, delete_mes, update_count_warnings, update_last_message_id
 
 router = Router()
 
@@ -66,17 +66,34 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
                     print(f"Не смог забанить. Ошибка {e}")
 
+            if user.last_message_id:
+                try:
+                    await bot.delete_message(
+                        chat_id=message.chat.id,
+                        message_id=user.last_message_id
+                    )
+                except:
+                    pass
             await message.delete()
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
-            asyncio.create_task(delete_mes(mes))
+            await update_last_message_id(message.from_user.id, mes.message_id)
+            # asyncio.create_task(delete_mes(mes))
             return
 
         if "@Mr_Perkins" not in message.text:
 
             await message.delete()
+            if user.last_message_id:
+                try:
+                    await bot.delete_message(
+                        chat_id=message.chat.id,
+                        message_id=user.last_message_id
+                    )
+                except:
+                    pass
             if user.warning_count == 2:
                 try:
                     await bot.ban_chat_member(
@@ -94,7 +111,8 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
                 text=f"@{message.from_user.username} ({message.from_user.id}), не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
-            asyncio.create_task(delete_mes(mes))
+            await update_last_message_id(message.from_user.id, mes.message_id)
+            # asyncio.create_task(delete_mes(mes))
             return
         new_count_posts = user.count_posts + 1
         await update_user(new_count_posts, message.from_user.id)
@@ -106,6 +124,15 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
           or ("агенство" in low_text) or ("связь" in low_text)
           or ("подробнее" in low_text) or ("куплб" in low_text)
           or ("ищу" in low_text)):
+
+        if user.last_message_id:
+            try:
+                await bot.delete_message(
+                    chat_id=message.chat.id,
+                    message_id=user.last_message_id
+                )
+            except:
+                pass
 
         if user.count_posts == 2:
             await message.delete()
@@ -126,11 +153,20 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
-            asyncio.create_task(delete_mes(mes))
+            await update_last_message_id(message.from_user.id, mes.message_id)
+            # asyncio.create_task(delete_mes(mes))
             return
 
         if "@Mr_Perkins" not in message.text:
 
+            if user.last_message_id:
+                try:
+                    await bot.delete_message(
+                        chat_id=message.chat.id,
+                        message_id=user.last_message_id
+                    )
+                except:
+                    pass
             await message.delete()
             if user.warning_count == 2:
                 try:
@@ -149,7 +185,8 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
                 text=f"@{message.from_user.username} ({message.from_user.id}), не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
-            asyncio.create_task(delete_mes(mes))
+            await update_last_message_id(message.from_user.id, mes.message_id)
+            # asyncio.create_task(delete_mes(mes))
             return
         new_count_posts = user.count_posts + 1
         await update_user(new_count_posts, message.from_user.id)

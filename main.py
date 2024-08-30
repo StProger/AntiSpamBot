@@ -15,7 +15,7 @@ from bot.logging import setup
 async def main():
 
     bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML', link_preview_is_disabled=True))
-
+    bot.delete_message()
     dp = Dispatcher()
 
     register_all_routers(dp)

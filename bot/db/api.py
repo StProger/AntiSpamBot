@@ -37,6 +37,12 @@ async def update_count_warnings(tg_id, count_warnings):
         await session.execute(query)
         await session.commit()
 
+async def update_last_message_id(tg_id, message_id):
+    async with async_session_maker() as session:
+        query = update(User).where(User.tg_id == tg_id).values(last_message_id=message_id)
+        await session.execute(query)
+        await session.commit()
+
 
 
 async def update_count_posts():
