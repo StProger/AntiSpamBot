@@ -196,7 +196,7 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
         await update_user(new_count_posts, message.from_user.id)
 
 
-@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({47,}))
+@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({47}))
 async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
