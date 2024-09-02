@@ -83,32 +83,44 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
             #         )
             #     except:
             #         pass
-            if (await get_message_id_()):
-                await bot.delete_message(
-                    chat_id=message.chat.id,
-                    message_id=(await get_message_id())
-                )
+            if (await get_message_id_work()):
+                try:
+                    await bot.delete_message(
+                        chat_id=message.chat.id,
+                        message_id=(await get_message_id_work())
+                    )
+                except:
+                    pass
             await message.delete()
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
-            await set_message_id(mes.message_id)
+            await set_message_id_work(mes.message_id)
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
-            #await update_last_message_id_work(message.from_user.id, mes.message_id)
+            await update_last_message_id_work(message.from_user.id, mes.message_id)
             # asyncio.create_task(delete_mes(mes))
             return
 
         if "@Mr_Perkins" not in message.text:
 
             await message.delete()
-            if user.last_message_id_work:
+            # if user.last_message_id_work:
+            #     try:
+            #         await bot.delete_message(
+            #             chat_id=message.chat.id,
+            #             message_id=user.last_message_id_work
+            #         )
+            #     except:
+            #         pass
+            if (await get_message_id_work()):
                 try:
                     await bot.delete_message(
                         chat_id=message.chat.id,
-                        message_id=user.last_message_id_work
+                        message_id=(await get_message_id_work())
                     )
                 except:
                     pass
+
             if user.warning_count == 2:
                 try:
                     await bot.ban_chat_member(
@@ -126,6 +138,7 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
                 text=f"@{message.from_user.username} ({message.from_user.id}), не забывайте добавлять в пост гаранта @Mr_Perkins."
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
+            await set_message_id_work(mes.message_id)
             await update_last_message_id_work(message.from_user.id, mes.message_id)
             # asyncio.create_task(delete_mes(mes))
             return
@@ -140,11 +153,19 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
           or ("подробнее" in low_text) or ("куплб" in low_text)
           or ("ищу" in low_text)):
 
-        if user.last_message_id_work:
+        # if user.last_message_id_work:
+        #     try:
+        #         await bot.delete_message(
+        #             chat_id=message.chat.id,
+        #             message_id=user.last_message_id_work
+        #         )
+        #     except:
+        #         pass
+        if (await get_message_id_work()):
             try:
                 await bot.delete_message(
                     chat_id=message.chat.id,
-                    message_id=user.last_message_id_work
+                    message_id=(await get_message_id_work())
                 )
             except:
                 pass
@@ -168,17 +189,26 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
+            await set_message_id_work(mes.message_id)
             await update_last_message_id_work(message.from_user.id, mes.message_id)
             # asyncio.create_task(delete_mes(mes))
             return
 
         if "@Mr_Perkins" not in message.text:
 
-            if user.last_message_id_work:
+            # if user.last_message_id_work:
+            #     try:
+            #         await bot.delete_message(
+            #             chat_id=message.chat.id,
+            #             message_id=user.last_message_id_work
+            #         )
+            #     except:
+            #         pass
+            if (await get_message_id_work()):
                 try:
                     await bot.delete_message(
                         chat_id=message.chat.id,
-                        message_id=user.last_message_id_work
+                        message_id=(await get_message_id_work())
                     )
                 except:
                     pass
@@ -201,13 +231,14 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
             )
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
             await update_last_message_id_work(message.from_user.id, mes.message_id)
+            await set_message_id_work(mes.message_id)
             # asyncio.create_task(delete_mes(mes))
             return
         new_count_posts = user.count_posts + 1
         await update_user(new_count_posts, message.from_user.id)
 
 
-@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({47}))
+@router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({47, 67}))
 async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
@@ -240,19 +271,30 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
             except Exception as e:
 
                 print(f"Не смог забанить. Ошибка {e}")
-        if user.last_message_id_las_vegas:
+        # if user.last_message_id_las_vegas:
+        #     try:
+        #         await bot.delete_message(
+        #             chat_id=message.chat.id,
+        #             message_id=user.last_message_id_las_vegas
+        #         )
+        #     except Exception as e:
+        #         pass
+        last_message_id = await get_message_id_las_vegas()
+        if last_message_id:
             try:
                 await bot.delete_message(
                     chat_id=message.chat.id,
-                    message_id=user.last_message_id_las_vegas
+                    message_id=last_message_id
                 )
-            except Exception as e:
+            except:
                 pass
+
         mes = await message.answer(
             text=f"@{message.from_user.username} ({message.from_user.id}), предлагайте услуги в ветке <b>WORK/УСЛУГИ</b>. И не забывайте писать гаранта @Mr_Perkins"
         )
         await update_count_warnings(message.from_user.id, user.warning_count + 1)
         await update_last_message_id_las_vegas(message.from_user.id, mes.message_id)
+        await set_message_id_las_vegas(mes.message_id)
         # asyncio.create_task(delete_mes(mes))
         return
 
@@ -277,13 +319,22 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
             except Exception as e:
 
                 print(f"Не смог забанить. Ошибка {e}")
-        if user.last_message_id_las_vegas:
+        # if user.last_message_id_las_vegas:
+        #     try:
+        #         await bot.delete_message(
+        #             chat_id=message.chat.id,
+        #             message_id=user.last_message_id_las_vegas
+        #         )
+        #     except Exception as e:
+        #         pass
+        last_message_id = await get_message_id_las_vegas()
+        if last_message_id:
             try:
                 await bot.delete_message(
                     chat_id=message.chat.id,
-                    message_id=user.last_message_id_las_vegas
+                    message_id=last_message_id
                 )
-            except Exception as e:
+            except:
                 pass
         await message.delete()
         mes = await message.answer(
@@ -291,6 +342,7 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
         )
         await update_count_warnings(message.from_user.id, user.warning_count + 1)
         await update_last_message_id_las_vegas(message.from_user.id, mes.message_id)
+        await set_message_id_las_vegas(mes.message_id)
         # asyncio.create_task(delete_mes(mes))
         return
 
