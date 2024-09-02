@@ -10,6 +10,11 @@ from bot.db.api import (update_user,
                         update_count_warnings,
                         update_last_message_id_work,
                         update_last_message_id_las_vegas)
+from bot.service.redis_serv.user import (set_message_id_work,
+                                         get_message_id_work,
+                                         set_message_id_las_vegas,
+                                         get_message_id_las_vegas)
+
 
 router = Router()
 
@@ -70,20 +75,26 @@ async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
                     print(f"Не смог забанить. Ошибка {e}")
 
-            if user.last_message_id_work:
-                try:
-                    await bot.delete_message(
-                        chat_id=message.chat.id,
-                        message_id=user.last_message_id_work
-                    )
-                except:
-                    pass
+            # if user.last_message_id_work:
+            #     try:
+            #         await bot.delete_message(
+            #             chat_id=message.chat.id,
+            #             message_id=user.last_message_id_work
+            #         )
+            #     except:
+            #         pass
+            if (await get_message_id_()):
+                await bot.delete_message(
+                    chat_id=message.chat.id,
+                    message_id=(await get_message_id())
+                )
             await message.delete()
             mes = await message.answer(
                 text=f"@{message.from_user.username} ({message.from_user.id}), лимит постов превышен: <code>2</code>"
             )
+            await set_message_id(mes.message_id)
             await update_count_warnings(message.from_user.id, user.warning_count + 1)
-            await update_last_message_id_work(message.from_user.id, mes.message_id)
+            #await update_last_message_id_work(message.from_user.id, mes.message_id)
             # asyncio.create_task(delete_mes(mes))
             return
 

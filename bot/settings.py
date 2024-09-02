@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = os.getenv("DB_PASSWORD")
     DB_NAME: str = os.getenv("DB_NAME")
 
+    REDIS_HOST: str = os.getenv("REDIS_HOST")
+    REDIS_DB: int = os.getenv("REDIS_DB")
+
     # Путь к логам
     PATH_LOGS: str = "bot/data/logs.log"
 
