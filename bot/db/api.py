@@ -63,3 +63,17 @@ async def delete_mes(message: types.Message):
 
     await sleep(10)
     await message.delete()
+
+
+async def find_tg_id(username: str):
+
+    async with async_session_maker() as session:
+
+        stmt = (
+            select(User)
+            .where(User.username == username)
+        )
+
+        result = await session.execute(stmt)
+
+        return result.mappings().one()

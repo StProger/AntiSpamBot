@@ -1,15 +1,19 @@
 from aiogram import Router, F, types, Bot
 from aiogram.enums import ChatMemberStatus
-from aiogram.types import ChatMemberOwner, ChatMemberAdministrator
+from aiogram.types import ChatMemberOwner, ChatMemberAdministrator, ChatPermissions
 from aiogram.filters.command import Command
 import asyncio
+
+from datetime import datetime, timedelta
+
+import pytz
 
 from bot.db.models.users import User
 from bot.db.api import (update_user,
                         delete_mes,
                         update_count_warnings,
                         update_last_message_id_work,
-                        update_last_message_id_las_vegas)
+                        update_last_message_id_las_vegas, find_tg_id)
 from bot.service.redis_serv.user import (set_message_id_work,
                                          get_message_id_work,
                                          set_message_id_las_vegas,
@@ -19,18 +23,23 @@ from bot.service.redis_serv.user import (set_message_id_work,
 router = Router()
 
 
+permissions_admins = [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
+                           ChatMemberStatus.ADMINISTRATOR]
+
 @router.message(Command("ban"), F.chat.type.in_({"group", "supergroup"}))
 async def ban_member(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     print(f"Ban | Username: {message.from_user.username}, {user_permission}")
-    if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
-                           ChatMemberStatus.ADMINISTRATOR] or message.from_user.username == "GroupAnonymousBot":
-        user_id = int(message.text.split()[-1])
+    if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
+        user_id = message.text.split()[-1]
+        if not user_id.isdigit():
+            user_id = await find_tg_id(user_id)
+        print(f"ID для бана: {user_id}")
         try:
             await bot.ban_chat_member(
                 chat_id=message.chat.id,
-                user_id=user_id
+                user_id=int(user_id)
             )
             print("Забанил")
             mes = await message.answer(f"Пользователь ({user_id}) забанен.")
@@ -42,12 +51,49 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
     await message.delete()
 
 
+@router.message(Command("warn"), F.chat.type.in_({"group", "supergroup"}))
+async def warn_user(message: types.Message, user: User, bot: Bot):
+
+    user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
+    if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
+
+        username = message.text.split()[-1].replace("@", "")
+        await message.answer(
+            text=f"@{username}, предупреждение."
+        )
+        await message.delete()
+
+
+@router.message(Command("mute"), F.chat.type.in_({"group", "supergroup"}))
+async def mute_user(message: types.Message, user: User, bot: Bot):
+
+    user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
+    if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
+
+        username = message.text.split()[-1]
+        user_id = await find_tg_id(username)
+        interval = int(message.text.split()[-2])
+        until_date = datetime.now(pytz.timezone("Europe/Moscow")) + timedelta(hours=interval)
+        try:
+            await bot.restrict_chat_member(
+                chat_id=message.chat.id,
+                user_id=user_id,
+                permissions=ChatPermissions(),
+                until_date=until_date
+            )
+            await message.delete()
+        except Exception as e:
+            await message.delete()
+
+
+
+
+
 @router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({None,}))
 async def antispam_handler(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
-    if user_permission in [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
-                           ChatMemberStatus.ADMINISTRATOR] or message.from_user.username == "GroupAnonymousBot":
+    if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
         return
     print(f"Сообщение от бота: {message.from_user.is_bot}")
     if message.from_user.is_bot and message.from_user.username != "GroupAnonymousBot":
