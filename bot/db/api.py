@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import select, update, Result
 from aiogram import types
 from asyncio import sleep
 
@@ -74,6 +74,6 @@ async def find_tg_id(username: str):
             .where(User.username == username)
         )
 
-        result = await session.execute(stmt)
+        result: Result = await session.execute(stmt)
 
-        return result.mappings().one()
+        return result.scalars().one()

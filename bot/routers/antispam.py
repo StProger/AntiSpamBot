@@ -26,6 +26,7 @@ router = Router()
 permissions_admins = [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus.CREATOR,
                            ChatMemberStatus.ADMINISTRATOR]
 
+
 @router.message(Command("ban"), F.chat.type.in_({"group", "supergroup"}))
 async def ban_member(message: types.Message, user: User, bot: Bot):
 
@@ -39,10 +40,10 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
         try:
             await bot.ban_chat_member(
                 chat_id=message.chat.id,
-                user_id=int(user_id)
+                user_id=user_id.tg_id
             )
             print("Забанил")
-            mes = await message.answer(f"Пользователь ({user_id}) забанен.")
+            mes = await message.answer(f"Пользователь ({user_id.tg_id}) забанен.")
             asyncio.create_task(delete_mes(mes))
         except Exception as e:
 
@@ -71,18 +72,23 @@ async def mute_user(message: types.Message, user: User, bot: Bot):
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
 
         username = message.text.split()[-1]
-        user_id = await find_tg_id(username)
+        user_ = await find_tg_id(username)
+        print(user_)
         interval = int(message.text.split()[-2])
         until_date = datetime.now(pytz.timezone("Europe/Moscow")) + timedelta(hours=interval)
         try:
             await bot.restrict_chat_member(
                 chat_id=message.chat.id,
-                user_id=user_id,
+                user_id=user_.tg_id,
                 permissions=ChatPermissions(),
                 until_date=until_date
             )
+            await message.answer(
+                text=f"@{username} мут на {interval} часов."
+            )
             await message.delete()
         except Exception as e:
+            print(e)
             await message.delete()
 
 
