@@ -59,6 +59,21 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
 
         username = message.text.split()[-1].replace("@", "")
+        tg_id_user = await find_tg_id(username)
+        if tg_id_user.warning_count == 2:
+            try:
+                await bot.ban_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=tg_id_user.tg_id
+                )
+                await message.delete()
+                return
+                # print("Забанил")
+                # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
+            except Exception as e:
+
+                print(f"Не смог забанить. Ошибка {e}")
+        await update_count_warnings(tg_id_user.tg_id, tg_id_user.warning_count + 1)
         await message.answer(
             text=f"@{username}, предупреждение."
         )
