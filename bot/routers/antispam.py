@@ -35,7 +35,7 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
         user_id = message.text.split()[-1]
         if not user_id.isdigit():
-            user_id = await find_tg_id(user_id)
+            user_id = await find_tg_id(user_id.replace("@", ""))
         print(f"ID для бана: {user_id}")
         try:
             await bot.ban_chat_member(
@@ -87,7 +87,7 @@ async def mute_user(message: types.Message, user: User, bot: Bot):
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
 
         username = message.text.split()[-1]
-        user_ = await find_tg_id(username)
+        user_ = await find_tg_id(username.replace("@", ""))
         print(user_)
         interval = int(message.text.split()[-2])
         until_date = datetime.now(pytz.timezone("Europe/Moscow")) + timedelta(hours=interval)
@@ -105,9 +105,6 @@ async def mute_user(message: types.Message, user: User, bot: Bot):
         except Exception as e:
             print(e)
             await message.delete()
-
-
-
 
 
 @router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({None,}))
