@@ -75,7 +75,7 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
                 print(f"Не смог забанить. Ошибка {e}")
         await update_count_warnings(tg_id_user.tg_id, tg_id_user.warning_count + 1)
         await message.answer(
-            text=f"@{username}, предупреждение."
+            text=f"@{username.replace('@', '')}, предупреждение."
         )
         await message.delete()
 
@@ -99,7 +99,7 @@ async def mute_user(message: types.Message, user: User, bot: Bot):
                 until_date=until_date
             )
             await message.answer(
-                text=f"@{username} мут на {interval} часов."
+                text=f"@{username.replace('@', '')} мут на {interval} часов."
             )
             await message.delete()
         except Exception as e:
