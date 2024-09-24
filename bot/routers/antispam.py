@@ -35,14 +35,14 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
         user_id = message.text.split()[-1]
         if not user_id.isdigit():
-            user_id = await find_tg_id(user_id.replace("@", ""))
+            user_id = (await find_tg_id(user_id.replace("@", ""))).tg_id
         print(f"ID для бана: {user_id}")
         try:
             await bot.ban_chat_member(
                 chat_id=message.chat.id,
                 user_id=user_id.tg_id
             )
-            print("Забанил")
+
             mes = await message.answer(f"Пользователь ({user_id.tg_id}) забанен.")
             asyncio.create_task(delete_mes(mes))
         except Exception as e:
