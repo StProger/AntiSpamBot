@@ -27,27 +27,75 @@ permissions_admins = [ChatMemberOwner, ChatMemberAdministrator, ChatMemberStatus
                            ChatMemberStatus.ADMINISTRATOR]
 
 
+# @router.message(Command("mes"), F.chat.type.in_({"group", "supergroup"}))
+# async def mes(message: types.Message):
+#
+#     print(message.reply_to_message)
+
+
 @router.message(Command("ban"), F.chat.type.in_({"group", "supergroup"}))
 async def ban_member(message: types.Message, user: User, bot: Bot):
 
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     print(f"Ban | Username: {message.from_user.username}, {user_permission}")
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
-        user_id = message.text.split()[-1]
-        if not user_id.isdigit():
-            user_id = (await find_tg_id(user_id.replace("@", ""))).tg_id
-        print(f"ID для бана: {user_id}")
-        try:
-            await bot.ban_chat_member(
-                chat_id=message.chat.id,
-                user_id=user_id.tg_id
-            )
 
-            mes = await message.answer(f"Пользователь ({user_id.tg_id}) забанен.")
-            asyncio.create_task(delete_mes(mes))
-        except Exception as e:
+        args = message.text.split()
 
-            print(f"Не смог забанить. Ошибка {e}")
+        if len(args) > 2:
+            reason = " ".join(args[2:])
+        else:
+            reason = None
+
+        if message.reply_to_message:
+
+            reply_message = message.reply_to_message
+
+            user_reply_message = reply_message.from_user
+
+            user_id = user_reply_message.id
+
+            try:
+                await bot.ban_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=user_id
+                )
+
+                if reason:
+                    text = (f"Пользователь ({user_id}) забанен.\n"
+                            f"Причина: {reason}")
+                else:
+                    text = f"Пользователь ({user_id}) забанен."
+
+                mes = await message.answer(text)
+                asyncio.create_task(delete_mes(mes))
+            except Exception as e:
+
+                print(f"Не смог забанить. Ошибка {e}")
+
+        else:
+
+            username_user = args[1]
+
+            user_for_ban: User = await find_tg_id(username_user.replace("@", ""))
+
+            try:
+                await bot.ban_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=user_for_ban.tg_id
+                )
+
+                if reason:
+                    text = (f"🚫 Пользователь ({user_for_ban.tg_id}) забанен. 🚫\n"
+                            f"Причина: {reason}")
+                else:
+                    text = f"🚫 Пользователь ({user_for_ban.tg_id}) забанен. 🚫"
+
+                mes = await message.answer(text)
+                asyncio.create_task(delete_mes(mes))
+            except Exception as e:
+
+                print(f"Не смог забанить. Ошибка {e}")
 
     await message.delete()
 
@@ -58,25 +106,88 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
 
-        username = message.text.split()[-1].replace("@", "")
-        tg_id_user = await find_tg_id(username)
-        if tg_id_user.warning_count == 2:
-            try:
-                await bot.ban_chat_member(
-                    chat_id=message.chat.id,
-                    user_id=tg_id_user.tg_id
-                )
-                await message.delete()
-                return
-                # print("Забанил")
-                # await message.answer(f"Пользователь ({message.from_user.id}) забанен.")
-            except Exception as e:
+        args = message.text.split()
 
-                print(f"Не смог забанить. Ошибка {e}")
-        await update_count_warnings(tg_id_user.tg_id, tg_id_user.warning_count + 1)
-        await message.answer(
-            text=f"@{username.replace('@', '')}, предупреждение."
-        )
+        if len(args) > 2:
+            reason = " ".join(args[2:])
+        else:
+            reason = None
+
+        username = args[1].replace("@", "")
+
+        if message.reply_to_message:
+
+            reply_message = message.reply_to_message
+
+            user_reply_message = reply_message.from_user
+
+            user_id = user_reply_message.id
+
+            user_to_warn = await find_tg_id(user_reply_message.username)
+
+            if user_to_warn:
+
+                if user_to_warn.warning_count == 2:
+                    try:
+                        await bot.ban_chat_member(
+                            chat_id=message.chat.id,
+                            user_id=user_id
+                        )
+                        await message.delete()
+                        return
+
+                    except Exception as e:
+
+                        print(f"Не смог забанить. Ошибка {e}")
+                await update_count_warnings(user_to_warn.tg_id, user_to_warn.warning_count + 1)
+
+                if reason:
+
+                    text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
+                            f"Причина: {reason}")
+
+                else:
+
+                    text = f"⚠️ @{username}, предупреждение. ⚠️"
+
+                await message.answer(
+                    text=text
+                )
+
+
+        else:
+
+            user_to_warn = await find_tg_id(username)
+
+            if user_to_warn:
+
+                if user_to_warn.warning_count == 2:
+                    try:
+                        await bot.ban_chat_member(
+                            chat_id=message.chat.id,
+                            user_id=user_to_warn.tg_id
+                        )
+                        await message.delete()
+                        return
+
+                    except Exception as e:
+
+                        print(f"Не смог забанить. Ошибка {e}")
+                await update_count_warnings(user_to_warn.tg_id, user_to_warn.warning_count + 1)
+
+                if reason:
+
+                    text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
+                            f"Причина: {reason}")
+
+                else:
+
+                    text = f"⚠️ @{username}, предупреждение. ⚠️"
+
+                await message.answer(
+                    text=text
+                )
+
         await message.delete()
 
 
@@ -86,25 +197,68 @@ async def mute_user(message: types.Message, user: User, bot: Bot):
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
 
-        username = message.text.split()[-1]
-        user_ = await find_tg_id(username.replace("@", ""))
-        print(user_)
-        interval = int(message.text.split()[-2])
+        args = message.text.split()
+
+        if len(args) > 3:
+            reason = " ".join(args[3:])
+        else:
+            reason = None
+
+        username = args[1].replace("@", "")
+
+        interval = int(args[2])
+
+        if reason:
+            text = (f"🔇 @{username} мут на {interval} часов. 🔇\n"
+                    f"Причина: {reason}")
+        else:
+
+            text = f"🔇 @{username} мут на {interval} часов. 🔇"
+
         until_date = datetime.now(pytz.timezone("Europe/Moscow")) + timedelta(hours=interval)
-        try:
-            await bot.restrict_chat_member(
-                chat_id=message.chat.id,
-                user_id=user_.tg_id,
-                permissions=ChatPermissions(),
-                until_date=until_date
-            )
-            await message.answer(
-                text=f"@{username.replace('@', '')} мут на {interval} часов."
-            )
-            await message.delete()
-        except Exception as e:
-            print(e)
-            await message.delete()
+
+        if message.reply_to_message:
+
+            reply_message = message.reply_to_message
+
+            user_reply_message = reply_message.from_user
+
+            user_id = user_reply_message.id
+
+            try:
+                await bot.restrict_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=user_id,
+                    permissions=ChatPermissions(),
+                    until_date=until_date
+                )
+
+                await message.answer(
+                    text=text
+                )
+            except Exception as e:
+                print(e)
+
+        else:
+
+            user_to_mute = await find_tg_id(username)
+
+            if user_to_mute:
+                try:
+                    await bot.restrict_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=user_to_mute.tg_id,
+                        permissions=ChatPermissions(),
+                        until_date=until_date
+                    )
+
+                    await message.answer(
+                        text=text
+                    )
+                except Exception as e:
+                    print(e)
+
+        await message.delete()
 
 
 @router.message(F.chat.type.in_({"group", "supergroup"}), F.message_thread_id.in_({None,}))

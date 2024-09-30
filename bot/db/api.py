@@ -76,4 +76,4 @@ async def find_tg_id(username: str):
 
         result: Result = await session.execute(stmt)
 
-        return result.scalars().one()
+        return result.scalar_one_or_none()
