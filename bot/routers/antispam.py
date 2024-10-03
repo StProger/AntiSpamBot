@@ -75,6 +75,30 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
 
         else:
 
+            if args[1].isdigit():
+
+                user_id = int(args[1])
+
+                try:
+                    await bot.ban_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=user_id
+                    )
+
+                    if reason:
+                        text = (f"Пользователь ({user_id}) забанен.\n"
+                                f"Причина: {reason}")
+                    else:
+                        text = f"Пользователь ({user_id}) забанен."
+
+                    mes = await message.answer(text)
+                    asyncio.create_task(delete_mes(mes))
+                except Exception as e:
+
+                    print(f"Не смог забанить. Ошибка {e}")
+                await message.delete()
+                return
+
             username_user = args[1]
 
             user_for_ban: User = await find_tg_id(username_user.replace("@", ""))
