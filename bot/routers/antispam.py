@@ -126,8 +126,10 @@ async def ban_member(message: types.Message, user: User, bot: Bot):
 
 @router.message(Command("warn"), F.chat.type.in_({"group", "supergroup"}))
 async def warn_user(message: types.Message, user: User, bot: Bot):
-
+    print(message.from_user.username)
+    print(message.from_user.id)
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
+    print(user_permission)
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
 
         args = message.text.split()
