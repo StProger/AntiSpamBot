@@ -131,7 +131,7 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
     user_permission = (await message.bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)).status
     print(user_permission)
     if user_permission in permissions_admins or message.from_user.username == "GroupAnonymousBot":
-
+        print("Админ, делаю предупреждение")
         args = message.text.split()
 
         if len(args) > 2:
