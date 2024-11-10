@@ -142,77 +142,83 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
         username = args[1].replace("@", "")
 
         if message.reply_to_message:
+            print("Ответ на сообщение есть")
+            try:
+                reply_message = message.reply_to_message
 
-            reply_message = message.reply_to_message
+                user_reply_message = reply_message.from_user
 
-            user_reply_message = reply_message.from_user
+                user_id = user_reply_message.id
 
-            user_id = user_reply_message.id
+                user_to_warn = await find_tg_id(user_reply_message.username)
 
-            user_to_warn = await find_tg_id(user_reply_message.username)
+                if user_to_warn:
 
-            if user_to_warn:
+                    if user_to_warn.warning_count == 2:
+                        try:
+                            await bot.ban_chat_member(
+                                chat_id=message.chat.id,
+                                user_id=user_id
+                            )
+                            await message.delete()
+                            return
 
-                if user_to_warn.warning_count == 2:
-                    try:
-                        await bot.ban_chat_member(
-                            chat_id=message.chat.id,
-                            user_id=user_id
-                        )
-                        await message.delete()
-                        return
+                        except Exception as e:
 
-                    except Exception as e:
+                            print(f"Не смог забанить. Ошибка {e}")
+                    await update_count_warnings(user_to_warn.tg_id, user_to_warn.warning_count + 1)
 
-                        print(f"Не смог забанить. Ошибка {e}")
-                await update_count_warnings(user_to_warn.tg_id, user_to_warn.warning_count + 1)
+                    if reason:
 
-                if reason:
+                        text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
+                                f"Причина: {reason}")
 
-                    text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
-                            f"Причина: {reason}")
+                    else:
 
-                else:
+                        text = f"⚠️ @{username}, предупреждение. ⚠️"
 
-                    text = f"⚠️ @{username}, предупреждение. ⚠️"
-
-                await message.answer(
-                    text=text
-                )
+                    await message.answer(
+                        text=text
+                    )
+            except Exception as e:
+                print(e)
 
 
         else:
+            print("Нет ответа на сообщение")
+            try:
+                user_to_warn = await find_tg_id(username)
 
-            user_to_warn = await find_tg_id(username)
+                if user_to_warn:
 
-            if user_to_warn:
+                    if user_to_warn.warning_count == 2:
+                        try:
+                            await bot.ban_chat_member(
+                                chat_id=message.chat.id,
+                                user_id=user_to_warn.tg_id
+                            )
+                            await message.delete()
+                            return
 
-                if user_to_warn.warning_count == 2:
-                    try:
-                        await bot.ban_chat_member(
-                            chat_id=message.chat.id,
-                            user_id=user_to_warn.tg_id
-                        )
-                        await message.delete()
-                        return
+                        except Exception as e:
 
-                    except Exception as e:
+                            print(f"Не смог забанить. Ошибка {e}")
+                    await update_count_warnings(user_to_warn.tg_id, user_to_warn.warning_count + 1)
 
-                        print(f"Не смог забанить. Ошибка {e}")
-                await update_count_warnings(user_to_warn.tg_id, user_to_warn.warning_count + 1)
+                    if reason:
 
-                if reason:
+                        text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
+                                f"Причина: {reason}")
 
-                    text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
-                            f"Причина: {reason}")
+                    else:
 
-                else:
+                        text = f"⚠️ @{username}, предупреждение. ⚠️"
 
-                    text = f"⚠️ @{username}, предупреждение. ⚠️"
-
-                await message.answer(
-                    text=text
-                )
+                    await message.answer(
+                        text=text
+                    )
+            except Exception as e:
+                print(e)
 
         await message.delete()
 
