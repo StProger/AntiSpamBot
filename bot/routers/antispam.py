@@ -214,9 +214,10 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
 
                         text = f"⚠️ @{username}, предупреждение. ⚠️"
 
-                    await message.answer(
+                    mes = await message.answer(
                         text=text
                     )
+                    print(mes)
             except Exception as e:
                 print(e)
 
