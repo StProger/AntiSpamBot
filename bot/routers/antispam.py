@@ -193,10 +193,12 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
 
                     if user_to_warn.warning_count == 2:
                         try:
-                            await bot.ban_chat_member(
+                            print("Баню юзера")
+                            result_ban = await bot.ban_chat_member(
                                 chat_id=message.chat.id,
                                 user_id=user_to_warn.tg_id
                             )
+                            print(result_ban)
                             await message.delete()
                             return
 
