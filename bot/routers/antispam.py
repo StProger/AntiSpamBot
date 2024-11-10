@@ -188,9 +188,9 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
             print("Нет ответа на сообщение")
             try:
                 user_to_warn = await find_tg_id(username)
-
+                print(user_to_warn)
                 if user_to_warn:
-
+                    print(user_to_warn.warning_count)
                     if user_to_warn.warning_count == 2:
                         try:
                             print("Баню юзера")
@@ -220,6 +220,20 @@ async def warn_user(message: types.Message, user: User, bot: Bot):
                         text=text
                     )
                     print(mes)
+                else:
+                    print("Нет юзера в бд")
+                    if reason:
+
+                        text = (f"⚠️ @{username}, предупреждение. ⚠️\n"
+                                f"Причина: {reason}")
+
+                    else:
+
+                        text = f"⚠️ @{username}, предупреждение. ⚠️"
+
+                    await message.answer(
+                        text=text
+                    )
             except Exception as e:
                 print(e)
 
